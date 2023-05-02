@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "fresh-deck-324409",
+  "private_key_id": "5a5c7482c3d0cc17404b3b0d7681568c8b62eeba",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCH1REQolrA8nPt\nlxZT4sB078PXjVjCoW+KalDj5+RpMpqAPeDEINr1n68zGx5YFcc7Gc/SuQQFH5EN\nCv3W1zYJb6XkLa8dKfosJ7UbFhqxo05bK3PLmauHyOCa1IKcVL/oIiwcuWwvZ1DP\nCtT16ZkkE4fV5rCMCgPfFSzsAWvTD5o/V4MRQieISaaKfnvUWnQEwV1g1+Z63qEv\nIADau4zIaUAHJ930gXuIOWq9hnYDm6PlaUZaEdm6rzmq1J6u6+CTq2vDta+FyZic\n5s3GqKOGHHTUqRKzxyEb5xNhLpww0goXAWsU/tBvNnTFtQ4oG7pu3+xKMepwfLRG\nkwh5RIYtAgMBAAECggEAEAtnruCSmkB5V5r1aPa7l4R7zGIWljTl/UJWKDmLxi5T\nSCsm+dvMqV9RnVaKdMqrxCwmG4S9uBI0usbt2XsF18L/pC6ORQJgmecd0iOABzQc\nTRIapTXTaGBewYMxI2CyY2vn7IOthwLr7Wzg32RWscd5z9cmSwBi2S7B5eW8FAvT\nc+I/IN1r42+WYxeeEqkdnDVJyhZWCcOJC2knaXwUn4zCM8tkh4wRWXL75oBHfnEy\n4TzESdZKiltXyj0CRjKFRNmRDLgw6ljoGoLE88UogkGqjfCRw+p8DQ1MbbuV0EI0\ntxFw0NzO/2wZunpVINocSwmho2404IZ3GPox/Jyt0QKBgQC9qC5EjWL7NiEw58fN\n4asa74HzXugJHVWMUVsb06jsZ0YcWvlQVRreKFb82CUD6I9Aaw9PNSlzpgeQpkKa\n/AQH4XIocUN91R03IgeHL7gcCqJAswJwvhP7lDeEXlBmmifrIBKhJKclknka1Q2O\n8xPODsNzlVSqIARywyjiyo1ifQKBgQC3WOBPDfPEYTBglLNAVn/RaZySO4pBFVvQ\nyTnxKvhVJE0neU0XLXkN8WEywoLWgYIW0yFTGVjsDqgaEEZ/5sP7zcjL7m1pPM2q\nvXhjobVVbRHb2UHplKpTja0lK8IS51hugSI7f4E/sU7JUvn4DctTp7e4G20tLQha\nRJCAN4TRcQKBgGMAvx5T/B6M9CiWZcvIiMxnyJtlqJTRdk3oTjopdF3rz0KQDuNr\neboMrtQQdMokhVsoR/aeFsRjIEHXOJ+0/NmsSy5nacbvD/Au2GUueNpShr5lc9ms\nr7u9dHmpziixQjNQK8lo28QWQRfLrec4ZtdDB653fpnMWuYZkGdLOyD1AoGBAIWa\nUfnJZPSZDbOTJ/ueDI4As4Mrt9ctRTajK4G9mjAQv9gf4DkffbLXTci7TLQasz0G\npKX1NoLtOzmi2nyhH/cBQWy5VSj2kbf1USDo2UZisDzP1+Pp3SP9fUo01LsJsbr0\nholspDZRcePqfxRumNdgw9N4yNm+kvOUOufzjOlBAoGAJXQLbXvbvyYI3tr7ZzSI\n1RvEYku8e5ZqzCCvbV2erm9knZziCGxoshjm9v8J5EFnbRsvXhpUST9Hezu0iSP+\nSl83z/1SYoU1YEG5FLHTasjHDIiAOWHoeyAJH4KWxqL323d3zVFOck3olFzkttyp\nEgvrsoHtBgc+zyc2iYCu0tk=\n-----END PRIVATE KEY-----\n",
+  "client_email": "streamlit-app@fresh-deck-324409.iam.gserviceaccount.com",
+  "client_id": "107763507456431296023",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/streamlit-app%40fresh-deck-324409.iam.gserviceaccount.com"
+}
