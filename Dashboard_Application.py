@@ -53,7 +53,7 @@ def show_mac_id_summary_statistics():
 
     # Set the credentials to authenticate the Google Drive API requests using a service account file
     creds = service_account.Credentials.from_service_account_file(
-        '/home/expert/Jupyter Notebook/Agverse_April2023/fresh-deck-324409-5a5c7482c3d0.json')
+        'fresh-deck-324409-5a5c7482c3d0.json')
 
     # Create a service object for the Google Drive API
     drive_service = build('drive', 'v3', credentials=creds)
@@ -140,16 +140,16 @@ def show_mac_id_summary_statistics():
 
                         # Display the updated results
                         with rows_container:
-                            st.subheader(f"1.Total Records: {int(total_records)}")
+                            st.subheader(f" 1. Total Records: {int(total_records)}")
                         # Display the updated results
                         with starttime_container:
-                            st.subheader(f"2.Start Time: {start_time} IST")
+                            st.subheader(f" 2. Start Time: {start_time} IST")
                         # Display the updated results
                         with endtime_container:
-                            st.subheader(f"3.End Time: {end_time} IST")
+                            st.subheader(f" 3. End Time: {end_time} IST")
                         # Display the updated results
                         with stats_name_container:
-                            st.subheader("4.Summary Table:")
+                            st.subheader(" 4. Summary Table:")
                         # Display the updated results
                         with stats_container:
                             st.write(mac_stats)
@@ -171,7 +171,7 @@ def show_mac_id_location_plot():
 
     # Define a function to authenticate the Google Drive API
     def get_gdrive_service(
-            credentials_path="/home/expert/Jupyter Notebook/MAY2023/MenuBarCode/SpyderCode/fresh-deck-324409-5a5c7482c3d0.json"):
+            credentials_path="fresh-deck-324409-5a5c7482c3d0.json"):
         credentials = service_account.Credentials.from_service_account_file(credentials_path)
         service = build("drive", "v3", credentials=credentials)
         return service
@@ -306,8 +306,7 @@ def show_mac_id_location_plot():
     service = get_gdrive_service()
 
     # Download and process the files
-    download_and_process_files("1CU1NdgBVRMosEulzkB-HXUFJJM2Wl6ij",
-                               "/home/expert/Jupyter Notebook/MAY2023/MenuBarCode/SpyderCode/fresh-deck-324409-5a5c7482c3d0.json")
+    download_and_process_files("1CU1NdgBVRMosEulzkB-HXUFJJM2Wl6ij","fresh-deck-324409-5a5c7482c3d0.json")
 
 if __name__ == "__main__":
     main()
