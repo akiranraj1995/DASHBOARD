@@ -1,313 +1,278 @@
-# REQUIRED LIBRARIES AND PACKAGES
-# LIBRARIES FOR Summary Statstics
+import folium
+from folium.plugins import MarkerCluster
+from streamlit_folium import folium_static
 import time
 import pandas as pd
 import streamlit as st
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from google.oauth2 import service_account
-from googleapiclient.http import MediaIoBaseDownload
 import io
 from pytz import timezone
+import re
 
-# LIBRARIES FOR Maps
-import streamlit as st
-import pandas as pd
-import folium
-from folium.plugins import MarkerCluster
-from streamlit_folium import folium_static
-import time
-import os
-from google.oauth2 import service_account
-from googleapiclient.discovery import build
-from pytz import timezone
-import datetime
+# Define the default page configuration settings
+default_config = {
+    'page_title': 'My Streamlit App',
+    'page_icon': None,
+    'layout': 'wide',
+    'initial_sidebar_state': 'auto'
+}
 
+# Set the page configuration
+st.set_page_config(**default_config)
 
-# MENU OPTION FOR SUMMARY STATISTICS AND MAPS
-def main():
-    st.set_page_config(page_title="Mac ID App")
+# Define constants for Google Drive API
+SCOPES = ['https://www.googleapis.com/auth/drive.readonly']
+SERVICE_ACCOUNT_FILE = '/fresh-deck-324409-5a5c7482c3d0.json'
 
-    menu = ["Mac ID Summary Statistics", "Mac ID Location Plot"]
-    choice = st.sidebar.selectbox("Select Page", menu)
+st.title("DATA DASHBOARD & LIVE LOCATIONS")
+# Create a Streamlit container to display the results
+filename_container = st.empty()
+tabs_container = st.empty()
 
-    if choice == "Mac ID Summary Statistics":
-        while True:
-            show_mac_id_summary_statistics()
-            time.sleep(20)
-    elif choice == "Mac ID Location Plot":
-        while True:
-            show_mac_id_location_plot()
-            time.sleep(20)
-
-
-#Time Delay
 interval_seconds = 30
+total_records = 0
+processed_file_ids = []
 
 
+# Define function to authenticate and create Google Drive API service
 
-# SUMMARY STATISTICS
-def show_mac_id_summary_statistics():
-    # Set the ID of the source folder in Google Drive
-    source_folder_id = '1CU1NdgBVRMosEulzkB-HXUFJJM2Wl6ij'
-
-    # Set the credentials to authenticate the Google Drive API requests using a service account file
-    creds = service_account.Credentials.from_service_account_file(
-        'fresh-deck-324409-5a5c7482c3d0.json')
-
-    # Create a service object for the Google Drive API
-    drive_service = build('drive', 'v3', credentials=creds)
-
-    # Keep track of the IDs of processed files
-    processed_file_ids = []
-
-    st.title("DATA DASHBOARD")
-
-    # Create a Streamlit container to display the results
-    rows_container = st.empty()
-    starttime_container = st.empty()
-    endtime_container = st.empty()
-    stats_name_container = st.empty()
-    stats_container = st.empty()
-    total_records = 0
-
-    while True:
-        try:
-            # Get a list of all CSV files in the source folder in Google Drive
-            query = f"'{source_folder_id}' in parents and mimeType= 'text/csv'"
-            results = drive_service.files().list(q=query, fields='files(id, name, createdTime)').execute()
-            files = results.get('files', [])
-            print(f'Found {len(files)} CSV files in source folder:')
-
-            if not files:
-                time.sleep(interval_seconds)
-                print('No CSV files found in source folder.')
-
-            else:
-                # Loop through each CSV file
-                for file in files:
-                    if file['id'] not in processed_file_ids:
-                        print(f'Processing file: {file["name"]}')
-                        # Download the CSV file
-                        file_id = file['id']
-                        request = drive_service.files().get_media(fileId=file_id)
-                        file_content = io.BytesIO()
-                        downloader = MediaIoBaseDownload(file_content, request)
-
-                        done = False
-                        while done is False:
-                            status, done = downloader.next_chunk()
-                            if status:
-                                print(f"Processed {int(status.progress() * 100)}%.")
-
-                        # Convert the downloaded content to a pandas DataFrame
-                        df = pd.read_csv(io.BytesIO(file_content.getvalue()))
-                        
-                        #Total Records
-                        total_records += df['Count'].sum()
-
-                        # create a timezone object for IST
-                        ist = timezone('Asia/Kolkata')
-
-                        # define a function to convert a timestamp to IST and return a human-readable string
-                        def convert_timestamp(timestamp):
-                            if timestamp != 0:
-                                # convert the timestamp to a pandas datetime object with UTC timezone
-                                dt = pd.to_datetime(timestamp, unit='s').tz_localize('UTC')
-                                # convert the timezone to IST
-                                dt = dt.astimezone(ist)
-                                # format the datetime object as a human-readable string
-                                return dt.strftime('%d/%b/%Y %H:%M:%S')
-                            else:
-                                return pd.NaT
-
-                        df['Last Time IST'] = df.groupby('Mac ID', group_keys=False)['Last Time'].apply(
-                            lambda x: x.apply(convert_timestamp))
-
-                        start_time = pd.to_datetime(df['Last Time IST']).min().strftime('%d/%b/%Y %H:%M:%S')
-                        end_time = pd.to_datetime(df['Last Time IST']).max().strftime('%d/%b/%Y %H:%M:%S')
-
-                        
-                        mac_stats = df[
-                            ['No', 'Mac ID', 'Location', 'Average Interval', 'Maximum Interval', 'Minimum Interval',
-                             'Last Time', 'Active']].reset_index(drop=True)
-
-                        
-                        mac_stats.index += 1
-
-                        # Update the processed file IDs
-                        processed_file_ids.append(file['id'])
-
-                        # Display the updated results
-                        with rows_container:
-                            st.subheader(f" 1. Total Records: {int(total_records)}")
-                        # Display the updated results
-                        with starttime_container:
-                            st.subheader(f" 2. Start Time: {start_time} IST")
-                        # Display the updated results
-                        with endtime_container:
-                            st.subheader(f" 3. End Time: {end_time} IST")
-                        # Display the updated results
-                        with stats_name_container:
-                            st.subheader(" 4. Summary Table:")
-                        # Display the updated results
-                        with stats_container:
-                            st.write(mac_stats)
-                        # Wait for 30 seconds before processing the next CSV file
-                        time.sleep(interval_seconds)
-
-        except HttpError as error:
-            print(f'An error occurred: {error}')
-
-        except KeyboardInterrupt:
-            print('Execution interrupted by user.')
-            break
+def create_drive_service():
+    creds = None
+    try:
+        creds = service_account.Credentials.from_service_account_file(
+            SERVICE_ACCOUNT_FILE, scopes=SCOPES)
+    except Exception as e:
+        st.write(f"Error: {e}")
+    service = build('drive', 'v3', credentials=creds)
+    return service
 
 
-# MAP LOCATION PLOT
-def show_mac_id_location_plot():
-    # Set the Google Drive folder ID
-    folder_id = "1CU1NdgBVRMosEulzkB-HXUFJJM2Wl6ij"
+# Define function to read CSV files from a Google Drive folder
+def read_csv_from_drive(folder_id):
+    service = create_drive_service()
+    file_list = []
+    try:
+        query = f"'{folder_id}' in parents and mimeType='text/csv'"
+        results = service.files().list(q=query, fields="nextPageToken, files(id, name)").execute()
+        items = results.get('files', [])
+        for item in items:
+            file_id = item['id']
+            file_name = item['name']
+            file = service.files().get_media(fileId=file_id).execute()
+            csv_data = pd.read_csv(io.StringIO(file.decode('utf-8')))
+            file_list.append((file_name, csv_data))
+    except HttpError as error:
+        st.write(f"An error occurred: {error}")
+    return file_list
 
-    # Define a function to authenticate the Google Drive API
-    def get_gdrive_service(
-            credentials_path="fresh-deck-324409-5a5c7482c3d0.json"):
-        credentials = service_account.Credentials.from_service_account_file(credentials_path)
-        service = build("drive", "v3", credentials=credentials)
-        return service
 
-    def download_and_process_files(folder_id, credentials_path):
-        # Authenticate the Google Drive API
-        service = get_gdrive_service(credentials_path)
+# Define function to load CSV data into a pandas DataFrame
+def load_data(file_list):
+    df_list = []
+    for file in file_list:
+        file_name, csv_data = file
+        csv_data.columns = [col.strip().lower() for col in csv_data.columns]
+        df_list.append(csv_data)
+    df = pd.concat(df_list, axis=0)
+    return df
 
-        # Create a subdirectory to store the CSV files
-        if not os.path.exists("csv_files"):
-            os.mkdir("csv_files")
 
-        st.header(" 2. LOCATION MAP OF MAC ID")
-        # Create a Streamlit container to display the map
-        map_container = st.empty()
+# Define function to display summary statistics of a DataFrame
+def display_summary_statistics(df):
+    global total_records
 
-        # Create a map object centered on India
-        india_map = folium.Map(location=[20.5937, 78.9629], zoom_start=2)
+    # Compute the analysis metrics
+    total_records += df['Count'].sum()
 
-        # Keep track of the total records, active records, and inactive records
-        total_records = 0
-        active_records = 0
-        inactive_records = 0
+    # create a timezone object for IST
+    ist = timezone('Asia/Kolkata')
 
-        # Create Streamlit containers to display the counts
-        total_records_container = st.empty()
-        active_records_container = st.empty()
-        inactive_records_container = st.empty()
+    # define a function to convert a timestamp to IST and return a human-readable string
+    def convert_timestamp(timestamp):
+        if timestamp != 0:
+            # convert the timestamp to a pandas datetime object with UTC timezone
+            dt = pd.to_datetime(timestamp, unit='s').tz_localize('UTC')
+            # convert the timezone to IST
+            dt = dt.astimezone(ist)
+            # format the datetime object as a human-readable string
+            return dt.strftime('%d/%b/%Y %H:%M:%S')
+        else:
+            return pd.NaT
 
-        # Define Streamlit containers for the start time and end time
-        start_time_container = st.empty()
-        end_time_container = st.empty()
-        active_locations_container = st.empty()
+    df['Last Time IST'] = df.groupby('Mac ID', group_keys=False)['Last Time'].apply(
+        lambda x: x.apply(convert_timestamp))
 
-        # Start the loop to download and process the files
-        processed_files = set()
-        # Start the loop to download and process the files
-        while True:
-            # Download the files from Google Drive
-            file_list = service.files().list(q=f"'{folder_id}' in parents", fields="files(id, name)").execute().get(
-                "files",
-                [])
+    start_time = pd.to_datetime(df['Last Time IST']).min().strftime('%d/%b/%Y %H:%M:%S')
+    end_time = pd.to_datetime(df['Last Time IST']).max().strftime('%d/%b/%Y %H:%M:%S')
 
-            for file in file_list:
-                if file["id"] not in processed_files:
-                    file_id = file["id"]
-                    file_name = os.path.join("csv_files", file_id + ".csv")
-                    request = service.files().get_media(fileId=file_id)
-                    with open(file_name, "wb") as f:
-                        f.write(request.execute())
+    mac_stats = df[['No', 'Mac ID', 'Location', 'Average Interval', 'Maximum Interval',
+                    'Minimum Interval', 'Last Time', 'Active']].reset_index(
+        drop=True)
+    mac_stats.index += 1
 
-                    # Process the CSV files as streaming data
-                    data = pd.read_csv(file_name)
+    # Display the updated results
 
-                    # Create a marker cluster for this chunk
-                    marker_cluster = MarkerCluster().add_to(india_map)
+    st.subheader(f"1.Total Records: {int(total_records)}")
+    # Display the updated results
 
-                    # Define a timezone object for IST
-                    ist = timezone('Asia/Kolkata')
+    st.subheader(f"2.Start Time: {start_time} IST")
+    # Display the updated results
 
-                    count = 0
-                    active_count = 0
-                    inactive_count = 0
+    st.subheader(f"3.End Time: {end_time} IST")
+    # Display the updated results
 
-                    active_locations = set()
-                    for index, row in data.iterrows():
-                        if row["Active"] == 1:
-                            active_locations.add(row["Location"])
-                            color = "green"
-                            count += 1
-                            active_count += 1
-                        else:
-                            color = "orange"
-                            count += 1
-                            inactive_count += 1
-                        active_locations_names = ', '.join(active_locations).replace("{", "").replace("}", "").replace(
-                            "'",
-                            "")
+    st.subheader("4.Summary Table:")
+    # Display the updated results
 
-                        folium.Marker(location=[row["Latitude"], row["Longitude"]],
-                                      tooltip=row["Mac ID"], icon=folium.Icon(color=color)).add_to(marker_cluster)
+    # Set the "No" column as the index
+    mac_stats = mac_stats.set_index("No")
+    st.write(mac_stats)
 
-                    # Update the Active and Inactive counts
-                    active_records = len(data[data["Active"] == 1])
-                    inactive_records = len(data[data["Active"] == 0])
 
-                    # create a timezone object for IST
-                    ist = timezone('Asia/Kolkata')
+total_records1 = 0
 
-                    # define a function to convert a timestamp to IST and return a human-readable string
-                    def convert_timestamp(timestamp):
-                        if timestamp != 0:
-                            # convert the timestamp to a pandas datetime object with UTC timezone
-                            dt = pd.to_datetime(timestamp, unit='s').tz_localize('UTC')
-                            # convert the timezone to IST
-                            dt = dt.astimezone(ist)
-                            # format the datetime object as a human-readable string
-                            return dt.strftime('%d/%b/%Y %H:%M:%S')
-                        else:
-                            return pd.NaT
 
-                    data['Last Time IST'] = data.groupby('Mac ID', group_keys=False)['Last Time'].apply(
-                        lambda x: x.apply(convert_timestamp))
+# Define function to display a map of a DataFrame's latitude and longitude data
+def display_map(df):
+    global total_records1
+    # Compute the analysis metrics
+    total_records1 += df['Count'].sum()
 
-                    start_time = pd.to_datetime(data['Last Time IST']).min().strftime('%d/%b/%Y %H:%M:%S')
-                    end_time = pd.to_datetime(data['Last Time IST']).max().strftime('%d/%b/%Y %H:%M:%S')
+    # create a timezone object for IST
+    ist = timezone('Asia/Kolkata')
 
-                    # Display the chunk on the map container
-                    map_container.empty()
-                    with map_container:
-                        folium_static(india_map, width=800, height=600)
-                        # calcuate the total records count
-                        total_records += data["Count"].sum()
-                        # Display the updated counts
-                        total_records = int(total_records)
-                        active_count = int(active_count)
-                        inactive_count = int(inactive_count)
+    # define a function to convert a timestamp to IST and return a human-readable string
+    def convert_timestamp(timestamp):
+        if timestamp != 0:
+            # convert the timestamp to a pandas datetime object with UTC timezone
+            dt = pd.to_datetime(timestamp, unit='s').tz_localize('UTC')
+            # convert the timezone to IST
+            dt = dt.astimezone(ist)
+            # format the datetime object as a human-readable string
+            return dt.strftime('%d/%b/%Y %H:%M:%S')
+        else:
+            return pd.NaT
 
-                    total_records_container.subheader(" 1. Total Records: {}".format(total_records))
-                    active_records_container.subheader(" 2. Active Mac ID Count: {}".format(active_records))
-                    # inactive_records_container.subheader(" 3. Inactive Mac ID Count: {}".format(inactive_records))
-                    start_time_container.subheader(" 3. Start Time: {}".format(start_time))
-                    end_time_container.subheader(" 4. End Time: {}".format(end_time))
-                    active_locations_container.subheader(" 5. Active Location Name : {}".format(active_locations_names))
+    df['Last Time IST'] = df.groupby('Mac ID', group_keys=False)['Last Time'].apply(
+        lambda x: x.apply(convert_timestamp))
 
-                    # Add the file ID to the set of processed files
-                    processed_files.add(file["id"])
-                    # Wait for some time before checking for new files
-                    time.sleep(interval_seconds)
+    start_time = pd.to_datetime(df['Last Time IST']).min().strftime('%d/%b/%Y %H:%M:%S')
+    end_time = pd.to_datetime(df['Last Time IST']).max().strftime('%d/%b/%Y %H:%M:%S')
 
-    # Authenticate the Google Drive API
-    service = get_gdrive_service()
+    # Create a map object centered at the first location in the data
+    m = folium.Map(location=[df['Latitude'][0], df['Longitude'][0]], zoom_start=3)
 
-    # Download and process the files
-    download_and_process_files("1CU1NdgBVRMosEulzkB-HXUFJJM2Wl6ij","fresh-deck-324409-5a5c7482c3d0.json")
+    # Create a marker cluster for the locations
+    marker_cluster = MarkerCluster().add_to(m)
+
+    # Add markers for each location in the data, with color based on the value of 'Status' column
+    active_locations = set()
+    active_locations_names = []
+    for i, row in df.iterrows():
+        if row['Active'] == 1:
+            active_locations.add((row['Location']))
+            icon_color = 'green'
+        else:
+            icon_color = 'orange'
+        popup_text = f"<b>{row['Mac ID']}"
+        folium.Marker(location=[row['Latitude'], row['Longitude']], tooltip=popup_text,
+                      icon=folium.Icon(color=icon_color)).add_to(marker_cluster)
+
+        active_locations_names = ','.join(active_locations).replace('{', '').replace('}', ''). \
+            replace("'", '')
+
+    active_records = len(df[df['Active'] == 1])
+
+    # Display the updated results
+
+    st.subheader("Live map of locations")
+    folium_static(m, width=800, height=600)
+
+    st.subheader(f"1.Total Records: {int(total_records1)}")
+
+    st.subheader(f"2.Start Time: {start_time} IST")
+
+    st.subheader(f"3.End Time: {end_time} IST")
+
+    st.subheader(f"4.Active Devices: {active_records} ")
+
+    st.subheader(f"5.Location of Active Device: {active_locations_names} ")
+
+
+def display_unknown_macid(df):
+    if any(value == 1 for value in df['Unknown Mac ID']):
+        st.warning('Yes')
+    else:
+        st.warning('No')
+
+
+def display_no_data(df):
+    if any(value == 1 for value in df['No Data']):
+        st.warning(1)
+    else:
+        st.warning(0)
+
+
+def display_data_unchanged(df):
+    if any(value == 1 for value in df['Data Unchanged']):
+        st.warning(1)
+    else:
+        st.warning(0)
+
+
+def display_data_dead(df):
+    if any(value == 1 for value in df['Data Dead']):
+        st.warning(1)
+    else:
+        st.warning(0)
+
+
+def main():
+    folder_id = '1G4FnXmCN2Els0KqI0eG3vE66hpohEspl'
+    file_list = []
+    if folder_id:
+        # Read CSV files from Google Drive folder
+        new_files = read_csv_from_drive(folder_id)
+        if new_files:
+            # Filter only the files with the "chunk{n}.csv" format
+            file_list = [(file_name, df) for (file_name, df) in new_files if re.match(r"chunk\d+\.csv", file_name)]
+
+        if file_list:
+            # Sort files by chunk number
+            file_list = sorted(file_list, key=lambda x: int(x[0].replace('chunk', '').replace('.csv', '')))
+
+        for file_name, df in file_list:
+            # Display file name
+            with filename_container:
+                st.write(f"File: {file_name}")
+
+            # Display summary statistics and map in tabs
+            with tabs_container:
+                tabs = st.tabs(
+                    ["Summary Statistics", "Map", "Unknown Mac ID", "No Data", "Data Unchanged", "Data Dead"])
+                with tabs[0]:
+                    display_summary_statistics(df)
+                with tabs[1]:
+                    display_map(df)
+                with tabs[2]:
+                    display_unknown_macid(df)
+                with tabs[3]:
+                    display_no_data(df)
+                with tabs[4]:
+                    display_data_unchanged(df)
+                with tabs[5]:
+                    display_data_dead(df)
+
+            # Pause for 30 seconds before displaying next file
+            time.sleep(30)
+    else:
+        st.write("No CSV files found in folder.")
+
+    # Pause for 3000 seconds before checking for new files
+    time.sleep(3000)
+
 
 if __name__ == "__main__":
     main()
-
