@@ -196,12 +196,15 @@ def display_data_unchanged(df):
         st.write("The following Mac IDs have unchanged data: ", unchanged_mac_ids)
 
 
+
 def display_data_dead(df):
     data_dead_mac_ids = df.loc[df['Data Dead'] == 1, 'Mac ID'].tolist()
-    if len(data_dead_mac_ids) == 0:
-        st.warning("None")
+    message_placeholder = st.empty()
+    if len(data_dead_mac_ids) > 0:
+        message_placeholder.write("The following Mac IDs have Data Dead:")
+        message_placeholder.write(data_dead_mac_ids)
     else:
-        st.write("The following Mac IDs have Data Dead: ", data_dead_mac_ids)
+        message_placeholder.warning("No Mac IDs have Data Dead")
 
 
 def main():
