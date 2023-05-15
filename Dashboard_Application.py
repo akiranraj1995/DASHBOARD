@@ -24,7 +24,7 @@ st.set_page_config(**default_config)
 
 # Define constants for Google Drive API
 SCOPES = ['https://www.googleapis.com/auth/drive.readonly']
-SERVICE_ACCOUNT_FILE = 'fresh-deck-324409-5a5c7482c3d0.json'
+SERVICE_ACCOUNT_FILE = '/home/expert/Jupyter Notebook/MAY2023/Agverse_8th_Week/fresh-deck-324409-5a5c7482c3d0.json'
 
 st.title("DATA DASHBOARD & LIVE LOCATIONS")
 # Create a Streamlit container to display the results
@@ -87,28 +87,14 @@ def display_summary_statistics(df):
     total_records += df['Count'].sum()
 
     # create a timezone object for IST
-    ist = timezone('Asia/Kolkata')
+    ist_times = pd.to_datetime(df['Last Time IST'], format= '%d/%b/%Y %H:%M:%S', errors = 'coerce')
+    ist_times = ist_times[ist_times.notna()]
+    start_time = ist_times.min().strftime('%d/%b/%Y %H:%M:%S')
+    end_time = ist_times.max().strftime('%d/%b/%Y %H:%M:%S')
 
-    # define a function to convert a timestamp to IST and return a human-readable string
-    def convert_timestamp(timestamp):
-        if timestamp != 0:
-            # convert the timestamp to a pandas datetime object with UTC timezone
-            dt = pd.to_datetime(timestamp, unit='s').tz_localize('UTC')
-            # convert the timezone to IST
-            dt = dt.astimezone(ist)
-            # format the datetime object as a human-readable string
-            return dt.strftime('%d/%b/%Y %H:%M:%S')
-        else:
-            return pd.NaT
-
-    df['Last Time IST'] = df.groupby('Mac ID', group_keys=False)['Last Time'].apply(
-        lambda x: x.apply(convert_timestamp))
-
-    start_time = pd.to_datetime(df['Last Time IST']).min().strftime('%d/%b/%Y %H:%M:%S')
-    end_time = pd.to_datetime(df['Last Time IST']).max().strftime('%d/%b/%Y %H:%M:%S')
 
     mac_stats = df[['No', 'Mac ID', 'Location', 'Average Interval', 'Maximum Interval',
-                    'Minimum Interval', 'Last Time', 'Active']].reset_index(
+                    'Minimum Interval', 'Last Time IST', 'Active', 'Battery', 'F/w Version']].reset_index(
         drop=True)
     mac_stats.index += 1
 
@@ -141,28 +127,14 @@ def display_map(df):
     total_records1 += df['Count'].sum()
 
     # create a timezone object for IST
-    ist = timezone('Asia/Kolkata')
+    ist_times = pd.to_datetime(df['Last Time IST'], format= '%d/%b/%Y %H:%M:%S', errors = 'coerce')
+    ist_times = ist_times[ist_times.notna()]
+    start_time = ist_times.min().strftime('%d/%b/%Y %H:%M:%S')
+    end_time = ist_times.max().strftime('%d/%b/%Y %H:%M:%S')
 
-    # define a function to convert a timestamp to IST and return a human-readable string
-    def convert_timestamp(timestamp):
-        if timestamp != 0:
-            # convert the timestamp to a pandas datetime object with UTC timezone
-            dt = pd.to_datetime(timestamp, unit='s').tz_localize('UTC')
-            # convert the timezone to IST
-            dt = dt.astimezone(ist)
-            # format the datetime object as a human-readable string
-            return dt.strftime('%d/%b/%Y %H:%M:%S')
-        else:
-            return pd.NaT
-
-    df['Last Time IST'] = df.groupby('Mac ID', group_keys=False)['Last Time'].apply(
-        lambda x: x.apply(convert_timestamp))
-
-    start_time = pd.to_datetime(df['Last Time IST']).min().strftime('%d/%b/%Y %H:%M:%S')
-    end_time = pd.to_datetime(df['Last Time IST']).max().strftime('%d/%b/%Y %H:%M:%S')
-
-    # Create a map object centered at the first location in the data
-    m = folium.Map(location=[df['Latitude'][0], df['Longitude'][0]], zoom_start=3)
+    # Display the updated results
+    # create a folium map centered on India
+    m = folium.Map(location=[20.5937, 78.9629], zoom_start=4.5)
 
     # Create a marker cluster for the locations
     marker_cluster = MarkerCluster().add_to(m)
@@ -185,10 +157,9 @@ def display_map(df):
 
     active_records = len(df[df['Active'] == 1])
 
-    # Display the updated results
-
     st.subheader("Live map of locations")
-    folium_static(m, width=800, height=600)
+    # folium_static(m, width=800, height=600)
+    folium_static(m, width=525, height=600)
 
     st.subheader(f"1.Total Records: {int(total_records1)}")
 
@@ -203,30 +174,34 @@ def display_map(df):
 
 def display_unknown_macid(df):
     if any(value == 1 for value in df['Unknown Mac ID']):
-        st.warning('Yes')
+        st.warning('Unknown Mac ID present')
     else:
-        st.warning('No')
+        st.warning('None')
 
 
 def display_no_data(df):
-    if any(value == 1 for value in df['No Data']):
-        st.warning(1)
+    no_data_mac_ids = df.loc[df['No Data'] == 1, 'Mac ID'].tolist()
+    if len(no_data_mac_ids) == 0:
+        st.subheader("Data is available for all Mac IDs.")
     else:
-        st.warning(0)
+        st.write("The following Mac IDs have No Data: ", no_data_mac_ids)
+
 
 
 def display_data_unchanged(df):
-    if any(value == 1 for value in df['Data Unchanged']):
-        st.warning(1)
+    unchanged_mac_ids = df.loc[df['Data Unchanged'] == 1, 'Mac ID'].tolist()
+    if len(unchanged_mac_ids) == 0:
+        st.warning('None')
     else:
-        st.warning(0)
+        st.write("The following Mac IDs have unchanged data: ", unchanged_mac_ids)
 
 
 def display_data_dead(df):
-    if any(value == 1 for value in df['Data Dead']):
-        st.warning(1)
+    data_dead_mac_ids = df.loc[df['Data Dead'] == 1, 'Mac ID'].tolist()
+    if len(data_dead_mac_ids) == 0:
+        st.warning("None")
     else:
-        st.warning(0)
+        st.write("The following Mac IDs have Data Dead: ", data_dead_mac_ids)
 
 
 def main():
