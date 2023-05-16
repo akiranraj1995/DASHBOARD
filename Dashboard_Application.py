@@ -24,7 +24,7 @@ st.set_page_config(**default_config)
 
 # Define constants for Google Drive API
 SCOPES = ['https://www.googleapis.com/auth/drive.readonly']
-SERVICE_ACCOUNT_FILE = 'fresh-deck-324409-5a5c7482c3d0.json'
+SERVICE_ACCOUNT_FILE = '/home/expert/Jupyter Notebook/MAY2023/Agverse_8th_Week/fresh-deck-324409-5a5c7482c3d0.json'
 
 st.title("DATA DASHBOARD & LIVE LOCATIONS")
 # Create a Streamlit container to display the results
@@ -92,32 +92,34 @@ def display_summary_statistics(df):
     start_time = ist_times.min().strftime('%d/%b/%Y %H:%M:%S')
     end_time = ist_times.max().strftime('%d/%b/%Y %H:%M:%S')
 
-
+    
+    # Set the option to show full contents of the "Last Time IST" column
+    pd.set_option('display.max_colwidth', None)
     mac_stats = df[['No', 'Mac ID', 'Location', 'Average Interval', 'Maximum Interval',
                     'Minimum Interval', 'Last Time IST', 'Active', 'Battery', 'F/w Version']].reset_index(
         drop=True)
     mac_stats.index += 1
 
+    
     # Display the updated results
-
-    st.subheader(f"1. Total Records: {int(total_records)}")
+    st.subheader(f"1.Total Records: {int(total_records)}")
+   
     # Display the updated results
-
-    st.subheader(f"2. Start Time: {start_time} IST")
+    st.subheader(f"2.Start Time: {start_time} IST")
+    
     # Display the updated results
-
-    st.subheader(f"3. End Time: {end_time} IST")
+    st.subheader(f"3.End Time: {end_time} IST")
+    
     # Display the updated results
-
-    st.subheader("4. Summary Table:")
-    # Display the updated results
+    st.subheader("4.Summary Table:")
 
     # Set the "No" column as the index
     mac_stats = mac_stats.set_index("No")
-    # Increase displayed columns width
-    st.write(mac_stats, width=2000)
-  
 
+    # Display the dataframe with increased column width
+    st.dataframe(mac_stats, width=5500)
+
+    
 
 total_records1 = 0
 
@@ -163,15 +165,15 @@ def display_map(df):
     # folium_static(m, width=800, height=600)
     folium_static(m, width=525, height=600)
 
-    st.subheader(f"1. Total Records: {int(total_records1)}")
+    st.subheader(f"1.Total Records: {int(total_records1)}")
 
-    st.subheader(f"2. Start Time: {start_time} IST")
+    st.subheader(f"2.Start Time: {start_time} IST")
 
-    st.subheader(f"3. End Time: {end_time} IST")
+    st.subheader(f"3.End Time: {end_time} IST")
 
-    st.subheader(f"4. Active Devices: {active_records} ")
+    st.subheader(f"4.Active Devices: {active_records} ")
 
-    st.subheader(f"5. Location of Active Device: {active_locations_names} ")
+    st.subheader(f"5.Location of Active Device: {active_locations_names} ")
 
 
 def display_unknown_macid(df):
@@ -196,7 +198,6 @@ def display_data_unchanged(df):
         st.warning('None')
     else:
         st.write("The following Mac IDs have unchanged data: ", unchanged_mac_ids)
-
 
 
 def display_data_dead(df):
