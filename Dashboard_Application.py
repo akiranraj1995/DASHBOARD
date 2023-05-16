@@ -24,7 +24,7 @@ st.set_page_config(**default_config)
 
 # Define constants for Google Drive API
 SCOPES = ['https://www.googleapis.com/auth/drive.readonly']
-SERVICE_ACCOUNT_FILE = '/home/expert/Jupyter Notebook/MAY2023/Agverse_8th_Week/fresh-deck-324409-5a5c7482c3d0.json'
+SERVICE_ACCOUNT_FILE = 'fresh-deck-324409-5a5c7482c3d0.json'
 
 st.title("DATA DASHBOARD & LIVE LOCATIONS")
 # Create a Streamlit container to display the results
