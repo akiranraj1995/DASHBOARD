@@ -122,7 +122,7 @@ def display_summary_statistics(df):
     
     
     # Set the "No" column as the index
-    mac_stats = mac_stats.set_index("No").rename_axis("No")
+    mac_stats = mac_stats.set_index("No")
      
     # Display the dataframe with increased column width
     st.dataframe(mac_stats, width=7500)
