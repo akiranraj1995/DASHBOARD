@@ -114,10 +114,9 @@ def display_summary_statistics(df):
 
     # Set the "No" column as the index
     mac_stats = mac_stats.set_index("No")
-    # Increase the maximum number of displayed columns
-    #pd.set_option('display.max_columns', 50)
+    # Increase displayed columns width
     st.write(mac_stats, width=1750)
-    #st.write(mac_stats)
+  
 
 
 total_records1 = 0
