@@ -100,13 +100,18 @@ def display_summary_statistics(df):
     mac_stats.index += 1
     
     
+    # Set the "No" column as the index
+    mac_stats = mac_stats.set_index("No")
+    # Set the name of the index column to "No"
+    mac_stats.index.name = "No"
+
     # format the "Average Interval" column to display with two decimal places
     mac_stats["Average Interval"] = mac_stats["Average Interval"].map("{:.2f}".format)
 
     # format the other columns to display without decimal places
     mac_stats = mac_stats.applymap(lambda x: "{:.0f}".format(x) if isinstance(x, (int, float)) else x)
-   
-    
+
+         
     # Display the updated results
     st.subheader(f"1. Total Records: {int(total_records)}")
    
@@ -118,13 +123,6 @@ def display_summary_statistics(df):
     
     # Display the updated results
     st.subheader("4. Summary Table:")
-    
-    
-    # Set the "No" column as the index
-    mac_stats = mac_stats.set_index("No")
-   
-    # Rename the index column header to "No"
-    #mac_stats = mac_stats.rename_axis(columns="No")
      
     # Display the dataframe with increased column width
     st.dataframe(mac_stats, width=7500)
