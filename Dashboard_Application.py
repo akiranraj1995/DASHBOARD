@@ -117,7 +117,7 @@ def display_summary_statistics(df):
     # Increase the maximum number of displayed columns
     pd.set_option('display.max_columns', 50)
     #st.write(mac_stats, width=1750)
-    #st.write(mac_stats)
+    st.write(mac_stats)
 
 
 total_records1 = 0
