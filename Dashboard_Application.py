@@ -100,16 +100,16 @@ def display_summary_statistics(df):
 
     # Display the updated results
 
-    st.subheader(f"1.Total Records: {int(total_records)}")
+    st.subheader(f"1. Total Records: {int(total_records)}")
     # Display the updated results
 
-    st.subheader(f"2.Start Time: {start_time} IST")
+    st.subheader(f"2. Start Time: {start_time} IST")
     # Display the updated results
 
-    st.subheader(f"3.End Time: {end_time} IST")
+    st.subheader(f"3. End Time: {end_time} IST")
     # Display the updated results
 
-    st.subheader("4.Summary Table:")
+    st.subheader("4. Summary Table:")
     # Display the updated results
 
     # Set the "No" column as the index
@@ -161,15 +161,15 @@ def display_map(df):
     # folium_static(m, width=800, height=600)
     folium_static(m, width=525, height=600)
 
-    st.subheader(f"1.Total Records: {int(total_records1)}")
+    st.subheader(f"1. Total Records: {int(total_records1)}")
 
-    st.subheader(f"2.Start Time: {start_time} IST")
+    st.subheader(f"2. Start Time: {start_time} IST")
 
-    st.subheader(f"3.End Time: {end_time} IST")
+    st.subheader(f"3. End Time: {end_time} IST")
 
-    st.subheader(f"4.Active Devices: {active_records} ")
+    st.subheader(f"4. Active Devices: {active_records} ")
 
-    st.subheader(f"5.Location of Active Device: {active_locations_names} ")
+    st.subheader(f"5. Location of Active Device: {active_locations_names} ")
 
 
 def display_unknown_macid(df):
