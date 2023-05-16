@@ -114,7 +114,7 @@ def display_summary_statistics(df):
 
     # Set the "No" column as the index
     mac_stats = mac_stats.set_index("No")
-    st.dataframe(mac_stats)
+    st.write(mac_stats)
 
 
 total_records1 = 0
