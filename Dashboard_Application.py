@@ -100,7 +100,6 @@ def display_summary_statistics(df):
         drop=True)
     mac_stats.index += 1
     
-     
     # Set the "No" column as the index
     mac_stats = mac_stats.set_index("No")
    
@@ -122,7 +121,6 @@ def display_summary_statistics(df):
     
     # Display the updated results
     st.subheader("4. Summary Table:")
-
 
     # Display the dataframe with increased column width
     st.dataframe(mac_stats, width=7500)
