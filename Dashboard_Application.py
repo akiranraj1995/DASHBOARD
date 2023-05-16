@@ -204,7 +204,7 @@ def display_data_dead(df):
         message_placeholder.write("The following Mac IDs have Data Dead:")
         message_placeholder.write(data_dead_mac_ids)
     else:
-        message_placeholder.warning("No Mac IDs have Data Dead")
+        message_placeholder.warning("None")
 
 
 def main():
