@@ -115,7 +115,7 @@ def display_summary_statistics(df):
     # Set the "No" column as the index
     mac_stats = mac_stats.set_index("No")
     # Increase displayed columns width
-    st.write(mac_stats, width=1750)
+    st.write(mac_stats, width=2000)
   
 
 
