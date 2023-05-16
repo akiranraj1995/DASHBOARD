@@ -94,10 +94,9 @@ def display_summary_statistics(df):
 
     
     # Set the option to show full contents of the "Last Time IST" column
-    pd.set_option('display.max_colwidth', None)
+    #pd.set_option('display.max_colwidth', None)
     mac_stats = df[['No', 'Mac ID', 'Location', 'Average Interval', 'Maximum Interval',
-                    'Minimum Interval', 'Last Time IST', 'Active', 'Battery', 'F/w Version']].reset_index(
-        drop=True)
+                    'Minimum Interval', 'Last Time IST', 'Active', 'Battery', 'F/w Version']].reset_index(drop=True)
     mac_stats.index += 1
     
     
@@ -125,7 +124,7 @@ def display_summary_statistics(df):
     mac_stats = mac_stats.set_index("No")
    
     # Rename the index column header to "No"
-    mac_stats = mac_stats.rename_axis(columns="No")
+    #mac_stats = mac_stats.rename_axis(columns="No")
      
     # Display the dataframe with increased column width
     st.dataframe(mac_stats, width=7500)
