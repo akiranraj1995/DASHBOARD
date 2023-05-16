@@ -108,7 +108,7 @@ def display_summary_statistics(df):
     mac_stats = mac_stats.applymap(lambda x: "{:.0f}".format(x) if isinstance(x, (int, float)) else x)
     
     # Set the "No" column as the index and rename the index column
-    mac_stats = mac_stats.set_index("No").rename_axis("No")
+    mac_stats = mac_stats.set_index("No")
 
     
     # Display the updated results
