@@ -224,50 +224,53 @@ def display_data_dead(df):
         message_placeholder.warning("None")
 
 
+
 def main():
     folder_id = '1G4FnXmCN2Els0KqI0eG3vE66hpohEspl'
-    file_list = []
-    if folder_id:
-        # Read CSV files from Google Drive folder
-        new_files = read_csv_from_drive(folder_id)
-        if new_files:
-            # Filter only the files with the "chunk{n}.csv" format
-            file_list = [(file_name, df) for (file_name, df) in new_files if re.match(r"chunk\d+\.csv", file_name)]
+    while True:
+        file_list = []
+        if folder_id:
+            # Read CSV files from Google Drive folder
+            new_files = read_csv_from_drive(folder_id)
+            if new_files:
+                # Filter only the files with the "chunk{n}.csv" format
+                file_list = [(file_name, df) for (file_name, df) in new_files if re.match(r"chunk\d+\.csv", file_name)]
 
-        if file_list:
-            # Sort files by chunk number
-            file_list = sorted(file_list, key=lambda x: int(x[0].replace('chunk', '').replace('.csv', '')))
+            if file_list:
+                # Sort files by chunk number
+                file_list = sorted(file_list, key=lambda x: int(x[0].replace('chunk', '').replace('.csv', '')))
 
-        for file_name, df in file_list:
-            # Display file name
-            with filename_container:
-                st.write(f"File: {file_name}")
+                for file_name, df in file_list:
+                    # Display file name
+                    with filename_container:
+                        st.write(f"File: {file_name}")
 
-            # Display summary statistics and map in tabs
-            with tabs_container:
-                tabs = st.tabs(
-                    ["Summary Statistics", "Map", "Unknown Mac ID", "No Data", "Data Unchanged", "Data Dead"])
-                with tabs[0]:
-                    display_summary_statistics(df)
-                with tabs[1]:
-                    display_map(df)
-                with tabs[2]:
-                    display_unknown_macid(df)
-                with tabs[3]:
-                    display_no_data(df)
-                with tabs[4]:
-                    display_data_unchanged(df)
-                with tabs[5]:
-                    display_data_dead(df)
+                    # Display summary statistics and map in tabs
+                    with tabs_container:
+                        tabs = st.tabs(
+                            ["Summary Statistics", "Map", "Unknown Mac ID", "No Data", "Data Unchanged", "Data Dead"])
+                        with tabs[0]:
+                            display_summary_statistics(df)
+                        with tabs[1]:
+                            display_map(df)
+                        with tabs[2]:
+                            display_unknown_macid(df)
+                        with tabs[3]:
+                            display_no_data(df)
+                        with tabs[4]:
+                            display_data_unchanged(df)
+                        with tabs[5]:
+                            display_data_dead(df)
 
-            # Pause for 30 seconds before displaying next file
-            time.sleep(30)
-    else:
-        st.write("No CSV files found in folder.")
+                    # Pause for 30 seconds before displaying next file
+                    time.sleep(30)
+            else:
+                st.write("No CSV files found in folder.")
+        else:
+            st.write("Folder ID is not set.")
 
-    # Pause for 3000 seconds before checking for new files
-    time.sleep(3000)
-
+        # Pause for 3000 seconds before checking for new files
+        time.sleep(3000)
 
 if __name__ == "__main__":
     main()
