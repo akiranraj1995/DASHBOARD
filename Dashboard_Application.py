@@ -10,6 +10,8 @@ from google.oauth2 import service_account
 import io
 from pytz import timezone
 import re
+#from streamlit_run_once import run_once
+
 
 # Define the default page configuration settings
 default_config = {
@@ -24,7 +26,7 @@ st.set_page_config(**default_config)
 
 # Define constants for Google Drive API
 SCOPES = ['https://www.googleapis.com/auth/drive.readonly']
-SERVICE_ACCOUNT_FILE = 'fresh-deck-324409-5a5c7482c3d0.json'
+SERVICE_ACCOUNT_FILE = '/home/expert/Jupyter Notebook/MAY2023/Agverse_9th_Week(15May2023-20thMay2023)/fresh-deck-324409-5a5c7482c3d0.json'
 
 st.title("DATA DASHBOARD & LIVE LOCATIONS")
 # Create a Streamlit container to display the results
@@ -86,36 +88,39 @@ def display_summary_statistics(df):
     # Compute the analysis metrics
     total_records += df['Count'].sum()
 
-    # create a timezone object for IST
-    ist_times = pd.to_datetime(df['Last Time IST'], format= '%d/%b/%Y %H:%M:%S', errors = 'coerce')
-    ist_times = ist_times[ist_times.notna()]
-    start_time = ist_times.min().strftime('%d/%b/%Y %H:%M:%S')
-    end_time = ist_times.max().strftime('%d/%b/%Y %H:%M:%S')
-
     
     # Set the option to show full contents of the "Last Time IST" column
     #pd.set_option('display.max_colwidth', None)
     mac_stats = df[['No', 'Mac ID', 'Location', 'Average Interval', 'Maximum Interval',
-                    'Minimum Interval', 'Last Time IST', 'Active', 'Battery', 'F/w Version']].reset_index(drop=True)
+                    'Minimum Interval', 'End Time IST', 'Active', 'Battery', 'F/w Version']].reset_index(drop=True)
     mac_stats.index += 1
     
+    
+    # create a timezone object for IST
+    #START TIME IST & #END TIME IST
+    ist_times_start = pd.to_datetime(df['Start Time IST'], format= '%d/%b/%Y %H:%M:%S', errors = 'coerce')
+    ist_times_end = pd.to_datetime(df['End Time IST'], format= '%d/%b/%Y %H:%M:%S', errors = 'coerce')
+    ist_times_start = ist_times_start[ist_times_start.notna()]
+    ist_times_end = ist_times_end[ist_times_end.notna()]
+    start_time = ist_times_start.min().strftime('%d/%b/%Y %H:%M:%S')
+    end_time = ist_times_end.max().strftime('%d/%b/%Y %H:%M:%S')
     
     # Set the "No" column as the index
     mac_stats = mac_stats.set_index("No")
     # Set the name of the index column to "No"
     mac_stats.index.name = "No"
 
-    # format the "Average Interval" column to display with two decimal places
-    #mac_stats["Average Interval"] = mac_stats["Average Interval"].map("{:.2f}".format)
+    
+    mac_stats.rename(columns={'End Time IST':'Last Time IST'},inplace=True)
 
-    # format the other columns to display without decimal places
-    #mac_stats = mac_stats.applymap(lambda x: "{:.0f}".format(x) if isinstance(x, (int, float)) else x)
     
     # format the "Average Interval" column to display with two decimal places
     mac_stats["Average Interval"] = mac_stats["Average Interval"].map(lambda x: "{:.2f}".format(x) if x != 0 else "0")
 
     # format the other columns to display without decimal places
     mac_stats = mac_stats.applymap(lambda x: "{:.0f}".format(x) if isinstance(x, (int, float)) else x)
+    
+   
 
          
     # Display the updated results
@@ -145,11 +150,15 @@ def display_map(df):
     total_records1 += df['Count'].sum()
 
     # create a timezone object for IST
-    ist_times = pd.to_datetime(df['Last Time IST'], format= '%d/%b/%Y %H:%M:%S', errors = 'coerce')
-    ist_times = ist_times[ist_times.notna()]
-    start_time = ist_times.min().strftime('%d/%b/%Y %H:%M:%S')
-    end_time = ist_times.max().strftime('%d/%b/%Y %H:%M:%S')
-
+    #START TIME IST & #END TIME IST
+    ist_times_start = pd.to_datetime(df['Start Time IST'], format= '%d/%b/%Y %H:%M:%S', errors = 'coerce')
+    ist_times_end = pd.to_datetime(df['End Time IST'], format= '%d/%b/%Y %H:%M:%S', errors = 'coerce')
+    ist_times_start = ist_times_start[ist_times_start.notna()]
+    ist_times_end = ist_times_end[ist_times_end.notna()]
+    start_time = ist_times_start.min().strftime('%d/%b/%Y %H:%M:%S')
+    end_time = ist_times_end.max().strftime('%d/%b/%Y %H:%M:%S')
+    
+   
     # Display the updated results
     # create a folium map centered on India
     m = folium.Map(location=[20.5937, 78.9629], zoom_start=4.5)
@@ -222,8 +231,6 @@ def display_data_dead(df):
         message_placeholder.write(data_dead_mac_ids)
     else:
         message_placeholder.warning("None")
-
-
 
 def main():
     folder_id = '1G4FnXmCN2Els0KqI0eG3vE66hpohEspl'
