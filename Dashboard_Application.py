@@ -106,7 +106,13 @@ def display_summary_statistics(df):
     mac_stats.index.name = "No"
 
     # format the "Average Interval" column to display with two decimal places
-    mac_stats["Average Interval"] = mac_stats["Average Interval"].map("{:.2f}".format)
+    #mac_stats["Average Interval"] = mac_stats["Average Interval"].map("{:.2f}".format)
+
+    # format the other columns to display without decimal places
+    #mac_stats = mac_stats.applymap(lambda x: "{:.0f}".format(x) if isinstance(x, (int, float)) else x)
+    
+    # format the "Average Interval" column to display with two decimal places
+    mac_stats["Average Interval"] = mac_stats["Average Interval"].map(lambda x: "{:.2f}".format(x) if x != 0 else "0")
 
     # format the other columns to display without decimal places
     mac_stats = mac_stats.applymap(lambda x: "{:.0f}".format(x) if isinstance(x, (int, float)) else x)
